@@ -42,11 +42,7 @@ function startNoodle() {
     return { randStart, randEnd, radius, startPos };
 }
 
-function continueNoodle(info) {}
-
-function noodle() {
-    const start = startNoodle();
-
+function createArc(start) {
     const endCords = [
         start.startPos[0] - Math.cos(start.randEnd - Math.PI) * start.radius,
         start.startPos[1] - Math.sin(start.randEnd - Math.PI) * start.radius,
@@ -58,14 +54,33 @@ function noodle() {
         endCords[1] - Math.sin(start.randEnd - Math.PI) * radius,
     ];
 
+    let randRad = Math.random() * (50 * ((2 * Math.PI) / 100));
+
+    return { centr, radius, randRad, endCords };
+}
+
+function continueNoodle(start) {
+    let no;
+    if (start.no) {
+        no = start.no + 1;
+    } else {
+        no = 1;
+    }
+
+    const arc = createArc(start);
+    const endCords = arc.endCords;
+    const radius = arc.radius;
+    const centr = arc.centr;
+    const randRad = arc.randRad;
+
     display.beginPath();
     display.arc(
         centr[0],
         centr[1],
         radius,
         Math.atan2(centr[1] - endCords[1], centr[0] - endCords[0]) - Math.PI,
-        0,
-        true
+        randRad,
+        no % 2 != 0
     );
     display.lineWidth = 7;
     display.strokeStyle = "#000";
@@ -76,12 +91,29 @@ function noodle() {
         centr[1],
         radius,
         Math.atan2(centr[1] - endCords[1], centr[0] - endCords[0]) - Math.PI,
-        0,
-        true
+        randRad,
+        no % 2 != 0
     );
     display.lineWidth = 5;
     display.strokeStyle = "#f2caaa";
     display.stroke();
+
+    if (no > 10) return;
+
+    continueNoodle({
+        randStart:
+            Math.atan2(centr[1] - endCords[1], centr[0] - endCords[0]) -
+            Math.PI,
+        randEnd: randRad,
+        radius,
+        startPos: centr,
+        no: no,
+    });
+}
+
+function noodle() {
+    const start = startNoodle();
+    continueNoodle(start);
 
     // display.beginPath();
     // display.arc(startPos[0], startPos[1], radius, 0, 2 * Math.PI);
