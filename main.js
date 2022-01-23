@@ -4,69 +4,84 @@ let r = 280;
 let minRad = 15;
 let maxRad = 75;
 
-function pickStart() {
+function pickStart(radius) {
+    let randomAngle = Math.floor(Math.random() * (Math.PI * 2));
     let startPos = [
-        Math.floor(Math.random() * 600),
-        Math.floor(Math.random() * 600),
+        300 - Math.cos(randomAngle) * (r - radius - 4),
+        300 - Math.sin(randomAngle) * (r - radius - 4),
     ];
-    console.log(startPos);
-    // console.log((300 + ));
-    if (
-        Math.sqrt((300 - startPos[0]) ** 2 + (300 - startPos[1]) ** 2) >
-        r - 50
-    ) {
-        return pickStart();
-    } else return startPos;
+    // console.log(startPos);
+    // // console.log((300 + ));
+    // if (
+    //     Math.sqrt((300 - startPos[0]) ** 2 + (300 - startPos[1]) ** 2) >
+    //     r - 50
+    // ) {
+    //     return pickStart();
+    // } else return startPos;
+    return startPos;
 }
 
-function pickRandAng(startPos, rad) {
-    let randAng = Math.floor(Math.random() * 360);
-    const x = Math.cos((randAng * Math.PI) / 180) * rad + startPos[0];
-    const y = Math.sin((randAng * Math.PI) / 180) * rad + startPos[1];
+function startNoodle() {
+    let radius = Math.floor(Math.random() * (maxRad - minRad)) + minRad;
+    startPos = pickStart(radius);
 
-    // display.fillStyle = "#f00";
-    // display.fillRect(x, y, 5, 5);
+    let randStart = Math.random() * Math.PI + Math.PI;
+    let randEnd = Math.random() * (Math.PI * 2) - Math.PI;
 
-    if (Math.sqrt((300 - x) ** 2 + (300 - y) ** 2) > r - 10) {
-        return pickRandAng(startPos, rad);
-    } else return randAng;
+    display.beginPath();
+    display.arc(startPos[0], startPos[1], radius, randStart, randEnd);
+    display.lineWidth = 7;
+    display.strokeStyle = "#000";
+    display.stroke();
+    display.beginPath();
+    display.arc(startPos[0], startPos[1], radius, randStart, randEnd);
+    display.lineWidth = 5;
+    display.strokeStyle = "#f2caaa";
+    display.stroke();
+
+    return { randStart, randEnd, radius, startPos };
 }
+
+function continueNoodle(info) {}
 
 function noodle() {
-    startPos = pickStart();
-    let radius = Math.floor(Math.random() * (maxRad - minRad)) + minRad;
+    const start = startNoodle();
 
-    const randAng = pickRandAng(startPos, radius);
-    const centrX = Math.cos((randAng * Math.PI) / 180) * radius + startPos[0];
-    const centrY = Math.sin((randAng * Math.PI) / 180) * radius + startPos[1];
+    const endCords = [
+        start.startPos[0] - Math.cos(start.randEnd - Math.PI) * start.radius,
+        start.startPos[1] - Math.sin(start.randEnd - Math.PI) * start.radius,
+    ];
 
-    let arcRad = Math.random() * (Math.PI * 2);
+    const radius = Math.floor(Math.random() * (maxRad - minRad)) + minRad;
+    const centr = [
+        endCords[0] - Math.cos(start.randEnd - Math.PI) * radius,
+        endCords[1] - Math.sin(start.randEnd - Math.PI) * radius,
+    ];
 
     display.beginPath();
     display.arc(
-        centrX,
-        centrY,
+        centr[0],
+        centr[1],
         radius,
-        Math.atan2(startPos[1] - centrY, startPos[0] - centrX),
-        arcRad
+        Math.atan2(centr[1] - endCords[1], centr[0] - endCords[0]) - Math.PI,
+        0,
+        true
     );
     display.lineWidth = 7;
     display.strokeStyle = "#000";
     display.stroke();
     display.beginPath();
     display.arc(
-        centrX,
-        centrY,
+        centr[0],
+        centr[1],
         radius,
-        Math.atan2(startPos[1] - centrY, startPos[0] - centrX),
-        arcRad
+        Math.atan2(centr[1] - endCords[1], centr[0] - endCords[0]) - Math.PI,
+        0,
+        true
     );
     display.lineWidth = 5;
     display.strokeStyle = "#f2caaa";
     display.stroke();
-
-    display.fillStyle = "#000";
-    display.fillRect(startPos[0], startPos[1], 5, 5);
 
     // display.beginPath();
     // display.arc(startPos[0], startPos[1], radius, 0, 2 * Math.PI);
